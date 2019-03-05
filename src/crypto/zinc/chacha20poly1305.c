@@ -100,7 +100,7 @@ bool chacha20poly1305_encrypt_sg(struct scatterlist *dst,
 	} b = { { 0 } };
 
 	chacha20_init(&chacha20_state, key, nonce);
-	chacha20(&chacha20_state, b.block0, b.block0, sizeof(b.block0),
+	fake__chacha20(&chacha20_state, b.block0, b.block0, sizeof(b.block0),
 		 simd_context);
 	poly1305_init(&poly1305_state, b.block0);
 
@@ -116,7 +116,7 @@ bool chacha20poly1305_encrypt_sg(struct scatterlist *dst,
 			size_t chunk_len =
 				rounddown(walk.nbytes, CHACHA20_BLOCK_SIZE);
 
-			chacha20(&chacha20_state, walk.dst.virt.addr,
+			fake__chacha20(&chacha20_state, walk.dst.virt.addr,
 				 walk.src.virt.addr, chunk_len, simd_context);
 			poly1305_update(&poly1305_state, walk.dst.virt.addr,
 					chunk_len, simd_context);
@@ -125,7 +125,7 @@ bool chacha20poly1305_encrypt_sg(struct scatterlist *dst,
 					walk.nbytes % CHACHA20_BLOCK_SIZE);
 		}
 		if (walk.nbytes) {
-			chacha20(&chacha20_state, walk.dst.virt.addr,
+			fake__chacha20(&chacha20_state, walk.dst.virt.addr,
 				 walk.src.virt.addr, walk.nbytes, simd_context);
 			poly1305_update(&poly1305_state, walk.dst.virt.addr,
 					walk.nbytes, simd_context);
@@ -242,7 +242,7 @@ bool chacha20poly1305_decrypt_sg(struct scatterlist *dst,
 		return false;
 
 	chacha20_init(&chacha20_state, key, nonce);
-	chacha20(&chacha20_state, b.block0, b.block0, sizeof(b.block0),
+	fake__chacha20(&chacha20_state, b.block0, b.block0, sizeof(b.block0),
 		 simd_context);
 	poly1305_init(&poly1305_state, b.block0);
 
@@ -261,7 +261,7 @@ bool chacha20poly1305_decrypt_sg(struct scatterlist *dst,
 
 			poly1305_update(&poly1305_state, walk.src.virt.addr,
 					chunk_len, simd_context);
-			chacha20(&chacha20_state, walk.dst.virt.addr,
+			fake__chacha20(&chacha20_state, walk.dst.virt.addr,
 				 walk.src.virt.addr, chunk_len, simd_context);
 			simd_relax(simd_context);
 			ret = blkcipher_walk_done(&desc, &walk,
@@ -270,7 +270,7 @@ bool chacha20poly1305_decrypt_sg(struct scatterlist *dst,
 		if (walk.nbytes) {
 			poly1305_update(&poly1305_state, walk.src.virt.addr,
 					walk.nbytes, simd_context);
-			chacha20(&chacha20_state, walk.dst.virt.addr,
+			fake__chacha20(&chacha20_state, walk.dst.virt.addr,
 				 walk.src.virt.addr, walk.nbytes, simd_context);
 			ret = blkcipher_walk_done(&desc, &walk, 0);
 		}
