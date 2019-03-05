@@ -281,7 +281,7 @@ static bool decrypt_packet(struct sk_buff *skb, struct noise_symmetric_key *key,
 	if (skb_to_sgvec(skb, sg, 0, skb->len) <= 0)
 		return false;
 
-	if (!chacha20poly1305_decrypt_sg(sg, sg, skb->len, NULL, 0,
+	if (!liuqun_chacha20poly1305_decrypt_sg(sg, sg, skb->len, NULL, 0,
 					 PACKET_CB(skb)->nonce, key->key,
 					 simd_context))
 		return false;
