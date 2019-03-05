@@ -189,6 +189,10 @@ horrible_insert_ordered(struct horrible_allowedips *table,
 		if (horrible_mask_to_cidr(other->mask) <= my_cidr)
 			break;
 	}
+#ifdef hlist_add_behind
+#warning hlist_add_behind is defined as a micro to hlist_add_after on CentOS kernel 3.10.0-957.5.1
+#undef hlist_add_behind
+#endif
 	if (!other && !where)
 		hlist_add_head(&node->table, &table->head);
 	else if (!other)
