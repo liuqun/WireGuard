@@ -82,7 +82,7 @@ void chacha20poly1305_encrypt(u8 *dst, const u8 *src, const size_t src_len,
 }
 EXPORT_SYMBOL(chacha20poly1305_encrypt);
 
-bool chacha20poly1305_encrypt_sg(struct scatterlist *dst,
+bool liuqun_chacha20poly1305_encrypt_sg(struct scatterlist *dst,
 				 struct scatterlist *src, const size_t src_len,
 				 const u8 *ad, const size_t ad_len,
 				 const u64 nonce,
@@ -100,7 +100,7 @@ bool chacha20poly1305_encrypt_sg(struct scatterlist *dst,
 	} b = { { 0 } };
 
 	chacha20_init(&chacha20_state, key, nonce);
-	chacha20(&chacha20_state, b.block0, b.block0, sizeof(b.block0),
+	liuqun_chacha20(&chacha20_state, b.block0, b.block0, sizeof(b.block0),
 		 simd_context);
 	poly1305_init(&poly1305_state, b.block0);
 
@@ -116,7 +116,7 @@ bool chacha20poly1305_encrypt_sg(struct scatterlist *dst,
 			size_t chunk_len =
 				rounddown(walk.nbytes, CHACHA20_BLOCK_SIZE);
 
-			chacha20(&chacha20_state, walk.dst.virt.addr,
+			liuqun_chacha20(&chacha20_state, walk.dst.virt.addr,
 				 walk.src.virt.addr, chunk_len, simd_context);
 			poly1305_update(&poly1305_state, walk.dst.virt.addr,
 					chunk_len, simd_context);
@@ -125,7 +125,7 @@ bool chacha20poly1305_encrypt_sg(struct scatterlist *dst,
 					walk.nbytes % CHACHA20_BLOCK_SIZE);
 		}
 		if (walk.nbytes) {
-			chacha20(&chacha20_state, walk.dst.virt.addr,
+			liuqun_chacha20(&chacha20_state, walk.dst.virt.addr,
 				 walk.src.virt.addr, walk.nbytes, simd_context);
 			poly1305_update(&poly1305_state, walk.dst.virt.addr,
 					walk.nbytes, simd_context);
@@ -149,24 +149,6 @@ err:
 	memzero_explicit(&chacha20_state, sizeof(chacha20_state));
 	memzero_explicit(&b, sizeof(b));
 	return !ret;
-}
-EXPORT_SYMBOL(chacha20poly1305_encrypt_sg);
-
-bool liuqun_chacha20poly1305_encrypt_sg(struct scatterlist *dst,
-				 struct scatterlist *src, const size_t src_len,
-				 const u8 *ad, const size_t ad_len,
-				 const u64 nonce,
-				 const u8 key[CHACHA20POLY1305_KEY_SIZE],
-				 simd_context_t *simd_context)
-{
-	bool ret;
-	ret = chacha20poly1305_encrypt_sg(dst,
-			src, src_len,
-			ad, ad_len,
-			nonce,
-			key,
-			simd_context);
-	return (ret);
 }
 EXPORT_SYMBOL(liuqun_chacha20poly1305_encrypt_sg);
 
@@ -235,7 +217,7 @@ bool chacha20poly1305_decrypt(u8 *dst, const u8 *src, const size_t src_len,
 }
 EXPORT_SYMBOL(chacha20poly1305_decrypt);
 
-bool chacha20poly1305_decrypt_sg(struct scatterlist *dst,
+bool liuqun_chacha20poly1305_decrypt_sg(struct scatterlist *dst,
 				 struct scatterlist *src, const size_t src_len,
 				 const u8 *ad, const size_t ad_len,
 				 const u64 nonce,
@@ -260,7 +242,7 @@ bool chacha20poly1305_decrypt_sg(struct scatterlist *dst,
 		return false;
 
 	chacha20_init(&chacha20_state, key, nonce);
-	chacha20(&chacha20_state, b.block0, b.block0, sizeof(b.block0),
+	liuqun_chacha20(&chacha20_state, b.block0, b.block0, sizeof(b.block0),
 		 simd_context);
 	poly1305_init(&poly1305_state, b.block0);
 
@@ -279,7 +261,7 @@ bool chacha20poly1305_decrypt_sg(struct scatterlist *dst,
 
 			poly1305_update(&poly1305_state, walk.src.virt.addr,
 					chunk_len, simd_context);
-			chacha20(&chacha20_state, walk.dst.virt.addr,
+			liuqun_chacha20(&chacha20_state, walk.dst.virt.addr,
 				 walk.src.virt.addr, chunk_len, simd_context);
 			simd_relax(simd_context);
 			ret = blkcipher_walk_done(&desc, &walk,
@@ -288,7 +270,7 @@ bool chacha20poly1305_decrypt_sg(struct scatterlist *dst,
 		if (walk.nbytes) {
 			poly1305_update(&poly1305_state, walk.src.virt.addr,
 					walk.nbytes, simd_context);
-			chacha20(&chacha20_state, walk.dst.virt.addr,
+			liuqun_chacha20(&chacha20_state, walk.dst.virt.addr,
 				 walk.src.virt.addr, walk.nbytes, simd_context);
 			ret = blkcipher_walk_done(&desc, &walk, 0);
 		}
@@ -312,24 +294,6 @@ err:
 	memzero_explicit(&chacha20_state, sizeof(chacha20_state));
 	memzero_explicit(&b, sizeof(b));
 	return !ret;
-}
-EXPORT_SYMBOL(chacha20poly1305_decrypt_sg);
-
-bool liuqun_chacha20poly1305_decrypt_sg(struct scatterlist *dst,
-				 struct scatterlist *src, const size_t src_len,
-				 const u8 *ad, const size_t ad_len,
-				 const u64 nonce,
-				 const u8 key[CHACHA20POLY1305_KEY_SIZE],
-				 simd_context_t *simd_context)
-{
-	bool ret;
-	ret = chacha20poly1305_decrypt_sg(dst,
-			src, src_len,
-			ad, ad_len,
-			nonce,
-			key,
-			simd_context);
-	return (ret);
 }
 EXPORT_SYMBOL(liuqun_chacha20poly1305_decrypt_sg);
 
