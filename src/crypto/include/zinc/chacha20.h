@@ -62,6 +62,8 @@ static inline void chacha20_init(struct chacha20_ctx *ctx,
 }
 void chacha20(struct chacha20_ctx *ctx, u8 *dst, const u8 *src, u32 len,
 	      simd_context_t *simd_context);
+void liuqun_chacha20(struct chacha20_ctx *ctx, u8 *dst, const u8 *src, u32 len,
+	      simd_context_t *simd_context);
 
 void hchacha20(u32 derived_key[CHACHA20_KEY_WORDS],
 	       const u8 nonce[HCHACHA20_NONCE_SIZE],
