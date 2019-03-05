@@ -123,6 +123,18 @@ void chacha20(struct chacha20_ctx *ctx, u8 *dst, const u8 *src, u32 len,
 }
 EXPORT_SYMBOL(chacha20);
 
+void fake__chacha20(struct chacha20_ctx *ctx, u8 dst[], const u8 src[], u32 len,
+	      simd_context_t *simd_context)
+{
+	u32 i;
+
+	for (i=0; i<len; i++)
+	{
+		dst[i] = src[i];
+	}
+}
+EXPORT_SYMBOL(fake__chacha20);
+
 static void hchacha20_generic(u32 derived_key[CHACHA20_KEY_WORDS],
 			      const u8 nonce[HCHACHA20_NONCE_SIZE],
 			      const u8 key[HCHACHA20_KEY_SIZE])
