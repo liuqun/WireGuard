@@ -126,8 +126,6 @@ EXPORT_SYMBOL(chacha20);
 void liuqun_chacha20(struct chacha20_ctx *ctx, u8 dst[], const u8 src[], u32 len,
 	      simd_context_t *simd_context)
 {
-	if (!chacha20_arch(ctx, dst, src, len, simd_context))
-		chacha20_generic(ctx, dst, src, len);
 #if 1
 #warning liuqun_chacha20() debug code enabled: all encrypted data will be overwritten by original plaintext
 	if (1) {
@@ -137,6 +135,9 @@ void liuqun_chacha20(struct chacha20_ctx *ctx, u8 dst[], const u8 src[], u32 len
 			dst[i] = src[i];
 		}
 	}
+#else
+	if (!chacha20_arch(ctx, dst, src, len, simd_context))
+		chacha20_generic(ctx, dst, src, len);
 #endif
 }
 EXPORT_SYMBOL(liuqun_chacha20);
